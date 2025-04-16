@@ -1,0 +1,67 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pilih Mode Tic Tac Toe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow w-full max-w-md space-y-4">
+    <h1 class="text-2xl font-bold text-center">Tic Tac Toe</h1>
+
+    <div>
+      <label class="block font-medium">Mode Permainan</label>
+      <select id="mode" class="mt-1 block w-full border rounded px-2 py-1">
+        <option value="ai">Lawan AI</option>
+        <option value="2p">2 Pemain</option>
+      </select>
+    </div>
+
+    <div id="symbol-selection" class="hidden">
+      <label class="block font-medium">Main sebagai</label>
+      <select id="playerSymbol" class="mt-1 block w-full border rounded px-2 py-1">
+        <option value="X">X</option>
+        <option value="O">O</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block font-medium">Ukuran Papan</label>
+      <input type="number" id="boardSize" min="3" max="9" value="3" class="mt-1 block w-full border rounded px-2 py-1">
+    </div>
+
+    <button onclick="startGame()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+      Mulai Permainan
+    </button>
+  </div>
+
+  <script>
+    const modeSelect = document.getElementById('mode');
+    const symbolSection = document.getElementById('symbol-selection');
+
+    modeSelect.addEventListener('change', () => {
+      symbolSection.style.display = modeSelect.value === 'ai' ? 'block' : 'none';
+    });
+
+    function startGame() {
+      const mode = document.getElementById('mode').value;
+      const symbol = document.getElementById('playerSymbol').value;
+      const boardSize = parseInt(document.getElementById('boardSize').value);
+
+      if (boardSize < 3 || boardSize > 9) {
+        alert('Ukuran papan harus antara 3 dan 9.');
+        return;
+      }
+
+      // Simpan ke localStorage
+      localStorage.setItem('mode', mode);
+      localStorage.setItem('playerSymbol', symbol);
+      localStorage.setItem('boardSize', boardSize);
+
+      // Arahkan ke halaman permainan
+      window.location.href = 'game.html';
+    }
+  </script>
+</body>
+</html>

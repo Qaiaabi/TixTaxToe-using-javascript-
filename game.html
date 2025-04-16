@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tic Tac Toe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+  <h1 class="text-2xl font-bold mb-4">Tic Tac Toe</h1>
+  <div id="board" class="grid gap-1"></div>
+  <p id="status" class="mt-4 text-lg font-medium text-center"></p>
+  <button onclick="restartGame()" class="mt-4 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
+    Main Lagi
+  </button>
+
+  <script>
+    const mode = localStorage.getItem('mode');
+    const playerSymbol = localStorage.getItem('playerSymbol');
+    const boardSize = parseInt(localStorage.getItem('boardSize')) || 3;
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('status');
+
+    let currentPlayer = 'X';
+    let board = Array(boardSize).fill(null).map(() => Array(boardSize).fill(''));
+    let gameOver = false;
+
+    boardEl.style.gridTemplateColumns = `repeat(${boardSize}, minmax(50px, 1fr))`;
+    boardEl.style.gridTemplateRows = `repeat(${boardSize}, minmax(50px, 1fr))`;
+
+    function createBoard() {
+      boardEl.innerHTML = '';
+      for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+          const cell = document.createElement('div');
+          cell.className = "w-14 h-14 flex items-center justify-center border bg-white text-2xl font-bold cursor-pointer";
+          cell.dataset.row = i;
+          cell.dataset.col = j;
+          cell.addEventListener('click', handleClick);
+          boardEl.appendChild(cell);
+        }
+      }
+    }
+
+    function handleClick(e) {
+      if (gameOver) return;
+
+      const row = parseInt(e.target.dataset.row);
+      const col = parseInt(e.target.dataset.col);
+
+      if (board[row][col] !== '') return;
+
+      board[row][col] = currentPlayer;
+      e.target.textContent = currentPlayer;
+
+      if (checkWin(currentPlayer)) {
+        statusEl.textContent = `${currentPlayer} menang!`;
+        gameOver = true;
+        return;
+      } else if (isBoardFull()) {
+        statusEl.textContent = "Seri!";
+        gameOver = true;
+        return;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+      if (mode === 'ai' && currentPlayer !== playerSymbol) {
+        setTimeout(aiMove, 300);
+      }
+    }
+
+    function aiMove() {
+      if (gameOver) return;
+
+      // Cari sel kosong pertama (strategi sederhana)
+      for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+          if (board[i][j] === '') {
+            board[i][j] = currentPlayer;
+            const index = i * boardSize + j;
+            boardEl.children[index].textContent = currentPlayer;
+
+            if (checkWin(currentPlayer)) {
+              statusEl.textContent = `${currentPlayer} menang!`;
+              gameOver = true;
+              return;
+            } else if (isBoardFull()) {
+              statusEl.textContent = "Seri!";
+              gameOver = true;
+              return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            return;
+          }
+        }
+      }
+    }
+
+    function isBoardFull() {
+      return board.every(row => row.every(cell => cell !== ''));
+    }
+
+    function checkWin(player) {
+      // Cek baris untuk 3 simbol berturut-turut
+      for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize - 2; j++) {
+          if (board[i][j] === player && board[i][j + 1] === player && board[i][j + 2] === player) {
+            return true;
+          }
+        }
+      }
+
+      // Cek kolom untuk 3 simbol berturut-turut
+      for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize - 2; j++) {
+          if (board[j][i] === player && board[j + 1][i] === player && board[j + 2][i] === player) {
+            return true;
+          }
+        }
+      }
+
+      // Cek diagonal untuk 3 simbol berturut-turut
+      for (let i = 0; i < boardSize - 2; i++) {
+        for (let j = 0; j < boardSize - 2; j++) {
+          if (board[i][j] === player && board[i + 1][j + 1] === player && board[i + 2][j + 2] === player) {
+            return true;
+          }
+        }
+      }
+
+      // Cek diagonal terbalik untuk 3 simbol berturut-turut
+      for (let i = 2; i < boardSize; i++) {
+        for (let j = 0; j < boardSize - 2; j++) {
+          if (board[i][j] === player && board[i - 1][j + 1] === player && board[i - 2][j + 2] === player) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+
+    function restartGame() {
+      window.location.href = 'index.html';
+    }
+
+    createBoard();
+
+    // Jalankan AI jika simbol AI adalah X dan mode AI
+    if (mode === 'ai' && playerSymbol === 'O') {
+      currentPlayer = 'X';
+      aiMove();
+    }
+  </script>
+
+</body>
+</html>
